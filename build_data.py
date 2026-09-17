@@ -249,10 +249,11 @@ for key, rows in groups.items():
         "oz_tract": oz_tract,
         "hd": "Y" if (hd_name or in_hd_attr) else "N",
         "hd_name": hd_name,
+        "tif_district": next((titleish(r["TIF_District"]) for r in rows
+                              if clean(r["TIF_District"])), None),
         "ssa": titleish(first["SSA_District"]),
         "zoning": titleish(first["Zoning"]),
         "land_use": titleish(first["Current_Land_Use"]),
-        "subdivision": titleish(first["Subdivision"]),
         "township": titleish(first["Township"]),
         "county": titleish(first["COUNTY"]),
         "acres": acres_of(prow),

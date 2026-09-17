@@ -128,6 +128,8 @@ async function init() {
   });
 
   els.parcelCount.textContent = propsData.features.length.toLocaleString();
+  const stamp = document.getElementById('build-stamp');
+  if (stamp) stamp.textContent = CONFIG.BUILD || 'unknown';
 
   // ---- Sources ----
   map.addSource('rerz', { type: 'geojson', data: rerz });
@@ -598,8 +600,8 @@ function renderSnapshot(feature) {
     ['Historic District', p.hd_name],
     ['Addresses on Parcel', p.units > 1 ? p.units : null],
     ['Also Addressed', p.also],
+    ['TIF District', p.tif_district],
     ['Special Service Area', p.ssa],
-    ['Subdivision', p.subdivision],
     ['Census Tract', p.tract],
     ['Township', p.township],
     ['County', p.county],

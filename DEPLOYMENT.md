@@ -108,6 +108,14 @@ This folder is already a git repository with a commit on `main`. You're just add
 - [ ] Open it on your phone. The layout turns into a draggable bottom sheet under 860px.
 - [ ] Click a property, hit **Copy link**, paste it in a new tab. It should open on that same property.
 
+### Every time you update the site: bump the build string
+
+`config.js` starts with `const BUILD = "2026-09-17c";` and `index.html` carries the same string three times as `?v=2026-09-17c`. Those query strings are what force browsers to fetch new files instead of reusing what they already have.
+
+**When you change anything in `data/`, `app.js`, or `style.css`, change that string in all four places** (any new value works — `2026-09-18a`, `2026-09-18b`, and so on). Without it, a browser that has been to the site before can keep serving its cached copy for hours, which shows up as the map looking right but quietly displaying old parcels — old data mixed with new code, which is worse than an obvious failure because nothing looks broken.
+
+The legend shows "Data build …" so you can confirm at a glance which version any browser is actually running. If a client says something looks wrong, ask what that line says.
+
 **Updating later (Terminal route):** edit files in this folder, then
 
 ```bash

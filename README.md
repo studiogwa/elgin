@@ -56,7 +56,8 @@ The 137 addresses whose PIN doesn't match a Kane County parcel get a 30-foot pla
 | `hd`, `hd_name` | Local historic district, from point-in-polygon against the district layer, falling back to the city's own field — which catches the Bungalow Thematic district, a designation with no polygon in the districts layer (1,672 parcels) |
 | `oz`, `oz_tract` | Qualified Opportunity Zone, by point-in-polygon (501 parcels) |
 | `ssa` | Special Service Area, where applicable |
-| `zoning`, `land_use`, `subdivision`, `acres` | Parcel attributes; `acres` falls back to computed polygon area where the recorded acreage is blank |
+| `zoning`, `land_use`, `acres` | Parcel attributes; `acres` falls back to computed polygon area where the recorded acreage is blank |
+| `tif_district` | TIF district from the city's address file — Central covers 1,273 parcels, Route 20 one |
 | `treasurer` | Link to the Kane County tax record |
 | `has_parcel` | `N` for the placeholder footprints described above |
 
