@@ -1,5 +1,5 @@
 // ============================================================
-// River Edge Redevelopment Zone Research, City of Elgin — config
+// Historic Property Research, City of Elgin — config
 // Studio GWA
 // ============================================================
 
@@ -12,15 +12,14 @@ const CONFIG = {
   // "Light" keeps the basemap muted so the zone overlays stay legible.
   MAPBOX_STYLE: "mapbox://styles/mapbox/light-v11",
 
-  // Initial view — centered on the Elgin River Edge Redevelopment Zone
+  // Initial view — centered on the Elgin study area
   INITIAL_CENTER: [-88.28003, 42.04324],
   INITIAL_ZOOM: 13.2,
 
   // Data files (all reprojected to WGS84 / EPSG:4326)
   DATA: {
-    properties: "data/properties.geojson",  // RERZ addresses joined to parcels
-    centroids: "data/centroids.geojson",    // RERZ address points
-    parcels: "data/parcels.geojson",        // surrounding context parcels
+    properties: "data/properties.geojson",  // researched parcels
+    centroids: "data/centroids.geojson",    // one point per researched parcel
     rerz: "data/rerz.geojson",
     oz: "data/oz.geojson",
     hd: "data/hd.geojson",

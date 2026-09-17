@@ -1,5 +1,5 @@
 // ============================================================
-// River Edge Redevelopment Zone Research, City of Elgin
+// Historic Property Research, City of Elgin
 // Studio GWA — app.js
 // ============================================================
 
@@ -102,18 +102,17 @@ map.addControl(new mapboxgl.GeolocateControl({ positionOptions: { enableHighAccu
 map.on('load', init);
 
 async function init() {
-  setSplashProgress(15, 'Loading River Edge, Opportunity Zone & historic district boundaries…');
+  setSplashProgress(15, 'Loading River Edge, historic district & Opportunity Zone boundaries…');
 
-  const [rerz, oz, hd, parcels, properties, centroids] = await Promise.all([
+  const [rerz, oz, hd, properties, centroids] = await Promise.all([
     fetch(CONFIG.DATA.rerz).then((r) => r.json()),
     fetch(CONFIG.DATA.oz).then((r) => r.json()),
     fetch(CONFIG.DATA.hd).then((r) => r.json()),
-    fetch(CONFIG.DATA.parcels).then((r) => r.json()),
     fetch(CONFIG.DATA.properties).then((r) => r.json()),
     fetch(CONFIG.DATA.centroids).then((r) => r.json()),
   ]);
 
-  setSplashProgress(55, 'Indexing River Edge properties…');
+  setSplashProgress(55, 'Indexing Elgin properties…');
 
   propsData = properties;
   centroidsData = centroids;
@@ -134,25 +133,17 @@ async function init() {
   map.addSource('rerz', { type: 'geojson', data: rerz });
   map.addSource('oz', { type: 'geojson', data: oz });
   map.addSource('hd', { type: 'geojson', data: hd });
-  map.addSource('parcels', { type: 'geojson', data: parcels });
   map.addSource('props-poly', { type: 'geojson', data: propsData, promoteId: 'id' });
 
   setSplashProgress(75, 'Styling map layers…');
 
   // Three distinct hues so overlapping boundaries stay legible: a warm
-  // terracotta accent for the RERZ (the subject of this map), dark charcoal
-  // grey for Opportunity Zones, and brand mid-green for historic districts.
+  // terracotta accent for the RERZ, brand mid-green for historic districts,
+  // and dark charcoal grey for Opportunity Zones. All three start visible;
+  // fills are kept light so a parcel sitting in two or three of them is
+  // still readable underneath.
 
-  // ---- Surrounding context parcels (off by default, drawn underneath) ----
-  map.addLayer({
-    id: 'parcels-outline',
-    type: 'line',
-    source: 'parcels',
-    layout: { visibility: 'none' },
-    paint: { 'line-color': '#8b9987', 'line-width': 0.7, 'line-opacity': 0.8 },
-  });
-
-  // ---- RERZ (terracotta accent) — on by default ----
+  // ---- RERZ (terracotta accent) ----
   map.addLayer({
     id: 'rerz-fill',
     type: 'fill',
@@ -171,14 +162,12 @@ async function init() {
     id: 'oz-fill',
     type: 'fill',
     source: 'oz',
-    layout: { visibility: 'none' },
-    paint: { 'fill-color': '#454948', 'fill-opacity': 0.14 },
+    paint: { 'fill-color': '#454948', 'fill-opacity': 0.1 },
   });
   map.addLayer({
     id: 'oz-outline',
     type: 'line',
     source: 'oz',
-    layout: { visibility: 'none' },
     paint: { 'line-color': '#454948', 'line-width': 1.8, 'line-dasharray': [2, 1.4] },
   });
 
@@ -187,18 +176,16 @@ async function init() {
     id: 'hd-fill',
     type: 'fill',
     source: 'hd',
-    layout: { visibility: 'none' },
-    paint: { 'fill-color': '#7ba457', 'fill-opacity': 0.2 },
+    paint: { 'fill-color': '#7ba457', 'fill-opacity': 0.16 },
   });
   map.addLayer({
     id: 'hd-outline',
     type: 'line',
     source: 'hd',
-    layout: { visibility: 'none' },
     paint: { 'line-color': '#7ba457', 'line-width': 1.8 },
   });
 
-  // ---- RERZ property parcels (always visible, primary click target) ----
+  // ---- Researched parcels (always visible, primary click target) ----
   map.addLayer({
     id: 'props-fill',
     type: 'fill',
@@ -457,6 +444,7 @@ function onSearchInput() {
       const p = f.properties;
       return (
         (p.address && p.address.toLowerCase().includes(q)) ||
+        (p.also && p.also.toLowerCase().includes(q)) ||
         (p.pin && p.pin.replace(/-/g, '').includes(q.replace(/-/g, ''))) ||
         (p.hd_name && p.hd_name.toLowerCase().includes(q)) ||
         (p.zoning && p.zoning.toLowerCase().includes(q)) ||
@@ -475,12 +463,11 @@ function onSearchInput() {
       const p = f.properties;
       const flags = [];
       if (p.rerz === 'Y') flags.push('<span class="sr-flag on-rerz">RERZ</span>');
-      if (p.oz === 'Y') flags.push('<span class="sr-flag on-oz">OZ</span>');
       if (p.hd === 'Y') flags.push('<span class="sr-flag on-hd">HISTORIC</span>');
-      if (p.tif === 'Y') flags.push('<span class="sr-flag on-tif">TIF</span>');
+      if (p.oz === 'Y') flags.push('<span class="sr-flag on-oz">OZ</span>');
       return `<div class="search-result-item" data-id="${esc(p.id)}">
         <div class="sr-title">${esc(p.address || 'Unknown address')}</div>
-        <div class="sr-sub">${esc(p.land_use || p.zoning || '')}</div>
+        <div class="sr-sub">${esc(p.units > 1 ? `${p.land_use || 'Parcel'} · ${p.units} addresses` : (p.land_use || p.zoning || ''))}</div>
         ${flags.length ? `<div class="sr-flags">${flags.join('')}</div>` : ''}
       </div>`;
     })
@@ -558,15 +545,17 @@ function statusRow(rowId, isYes, valueText) {
 // not on location alone.
 function stackNarrative(p) {
   const parts = [];
-  parts.push('Sits in the Elgin River Edge Redevelopment Zone — qualifying rehabilitation may be eligible for the 25% River Edge Historic Tax Credit on certified historic structures, plus RERZ sales tax and investment incentives.');
+  if (p.rerz === 'Y') {
+    parts.push('Sits in the Elgin River Edge Redevelopment Zone — qualifying rehabilitation may be eligible for the 25% River Edge Historic Tax Credit on certified historic structures, plus RERZ sales tax and investment incentives.');
+  }
   if (p.hd === 'Y') {
-    parts.push(`Inside the ${p.hd_name} local historic district, so exterior work is subject to Elgin Heritage Commission review — and district status supports the case for landmark or National Register certification needed for historic tax credits.`);
+    parts.push(`${p.rerz === 'Y' ? 'Inside' : 'Sits inside'} the ${p.hd_name} local historic district, so exterior work is subject to Elgin Heritage Commission review — and district status supports the case for the landmark or National Register certification that historic tax credits require.`);
+  }
+  if (p.rerz !== 'Y' && p.hd === 'Y') {
+    parts.push('Outside the River Edge Redevelopment Zone, so the 25% state River Edge credit does not apply here — the federal 20% rehabilitation credit remains available for certified historic structures in income-producing use.');
   }
   if (p.oz === 'Y') {
     parts.push('Also in a federal Qualified Opportunity Zone, which can defer and reduce capital gains tax for investors putting gains into the project.');
-  }
-  if (p.tif === 'Y') {
-    parts.push(`Also in the ${p.tif_district} TIF district — potential city assistance with eligible redevelopment costs.`);
   }
   if (p.ssa) {
     parts.push(`Within ${p.ssa} Special Service Area.`);
@@ -578,14 +567,18 @@ function renderSnapshot(feature) {
   const p = feature.properties;
 
   els.snapAddress.textContent = p.address || 'Address unavailable';
-  els.snapBuildingName.textContent = p.land_use || '';
-  els.snapBuildingName.style.display = p.land_use ? '' : 'none';
+  // One parcel can carry many addresses (a condo or apartment building), so
+  // the subtitle says how many rather than the map drawing the same polygon
+  // once per unit.
+  const sub = [p.land_use, p.units > 1 ? `${p.units} addresses on this parcel` : null]
+    .filter(Boolean).join(' · ');
+  els.snapBuildingName.textContent = sub;
+  els.snapBuildingName.style.display = sub ? '' : 'none';
 
   // Status rows
   statusRow('status-rerz', p.rerz === 'Y', p.rerz === 'Y' ? 'Yes — in the zone' : 'Not in the RERZ');
   statusRow('status-oz', p.oz === 'Y', p.oz === 'Y' ? (p.oz_tract || 'Yes — Qualified Opportunity Zone') : 'Not in an Opportunity Zone');
   statusRow('status-hd', p.hd === 'Y', p.hd === 'Y' ? p.hd_name : 'Not in a local historic district');
-  statusRow('status-tif', p.tif === 'Y', p.tif === 'Y' ? (p.tif_district || 'Yes') : 'Not in a TIF district');
 
   // Incentive stack narrative
   const narrative = stackNarrative(p);
@@ -603,7 +596,8 @@ function renderSnapshot(feature) {
     ['Zoning', p.zoning],
     ['Current Land Use', p.land_use],
     ['Historic District', p.hd_name],
-    ['TIF District', p.tif_district],
+    ['Addresses on Parcel', p.units > 1 ? p.units : null],
+    ['Also Addressed', p.also],
     ['Special Service Area', p.ssa],
     ['Subdivision', p.subdivision],
     ['Census Tract', p.tract],
@@ -702,7 +696,7 @@ function shareProperty() {
   if (!selectedId) return;
   const feature = propsById[selectedId];
   const url = currentShareUrl();
-  const title = `${feature.properties.address} — Elgin River Edge Redevelopment Zone`;
+  const title = `${feature.properties.address} — Elgin Historic Property Research`;
   if (navigator.share) {
     navigator.share({ title, url }).catch(() => {});
   } else {

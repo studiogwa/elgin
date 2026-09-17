@@ -1,4 +1,4 @@
-# Deployment Guide — River Edge Redevelopment Zone Research, City of Elgin
+# Deployment Guide — Historic Property Research, City of Elgin
 
 Static bundle (HTML/CSS/JS + GeoJSON). No server, no build step.
 

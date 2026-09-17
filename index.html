@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>River Edge Redevelopment Zone Research, City of Elgin — Studio GWA</title>
-<meta name="description" content="Explore the City of Elgin's River Edge Redevelopment Zone and check whether a property also sits in an Opportunity Zone, a local historic district, or a TIF district." />
-<meta property="og:title" content="River Edge Redevelopment Zone Research, City of Elgin — Studio GWA" />
-<meta property="og:description" content="Search Elgin's River Edge Redevelopment Zone properties and check Opportunity Zone, historic district, and TIF status instantly." />
+<title>Historic Property Research, City of Elgin — Studio GWA</title>
+<meta name="description" content="Search any address in Elgin's River Edge Redevelopment Zone and adjacent historic districts to identify possible incentives and property information." />
+<meta property="og:title" content="Historic Property Research, City of Elgin — Studio GWA" />
+<meta property="og:description" content="Search Elgin's River Edge Redevelopment Zone and historic district properties to identify possible incentives instantly." />
 <meta property="og:type" content="website" />
 
 <link rel="preconnect" href="https://api.mapbox.com" />
@@ -32,7 +32,7 @@
 <div id="splash">
   <div class="splash-inner">
     <img src="assets/gwa-logo-notag-white.png" alt="Studio GWA" class="splash-logo" />
-    <h1 class="splash-title">River Edge Redevelopment<br />Zone Research</h1>
+    <h1 class="splash-title">Historic Property<br />Research</h1>
     <p class="splash-place">City of Elgin</p>
     <p class="splash-sub" id="splash-status">Loading zone boundaries&hellip;</p>
     <div class="splash-bar"><div class="splash-bar-fill" id="splash-progress"></div></div>
@@ -46,9 +46,9 @@
     <span class="header-tagline">Plan &middot; Design &middot; Develop</span>
   </a>
   <div class="header-title">
-    <span class="header-title-main">River Edge Redevelopment Zone Research, City of Elgin</span>
-    <span class="header-title-short">River Edge Zone &middot; Elgin</span>
-    <span class="header-title-sub"><span id="parcel-count">&mdash;</span> properties in the zone</span>
+    <span class="header-title-main">Historic Property Research, City of Elgin</span>
+    <span class="header-title-short">Historic Property Research</span>
+    <span class="header-title-sub"><span id="parcel-count">&mdash;</span> parcels researched</span>
   </div>
 </header>
 
@@ -59,8 +59,8 @@
   <aside id="sidebar">
     <div id="sheet-handle" class="sheet-handle" aria-hidden="true"><span class="sheet-handle-bar"></span></div>
     <div class="sidebar-search-block">
-      <h2 class="sidebar-hed">What incentives does this<br/><em>River Edge property qualify for?</em></h2>
-      <p class="sidebar-copy">Search any address in Elgin's River Edge Redevelopment Zone to check Opportunity Zone, historic district, and TIF status instantly.</p>
+      <h2 class="sidebar-hed">What incentives does this<br/><em>historic property qualify for?</em></h2>
+      <p class="sidebar-copy">Search any address within Elgin's River Edge Redevelopment Zone and adjacent historic districts to identify possible incentives and more relevant information.</p>
       <div class="search-box">
         <span class="search-icon">&#128269;</span>
         <input type="text" id="search-input" placeholder="Search an address, PIN, or district&hellip;" autocomplete="off" />
@@ -73,16 +73,15 @@
       <h3>Map Layers</h3>
       <ul class="legend-list">
         <li><label><input type="checkbox" data-layer="rerz" checked /><span class="swatch swatch-rerz"></span>River Edge Redevelopment Zone</label></li>
-        <li><label><input type="checkbox" data-layer="oz" /><span class="swatch swatch-oz"></span>Opportunity Zones</label></li>
-        <li><label><input type="checkbox" data-layer="hd" /><span class="swatch swatch-hd"></span>Historic Districts</label></li>
-        <li><label><input type="checkbox" data-layer="parcels" /><span class="swatch swatch-parcels"></span>Surrounding Parcels</label></li>
+        <li><label><input type="checkbox" data-layer="hd" checked /><span class="swatch swatch-hd"></span>Historic Districts</label></li>
+        <li><label><input type="checkbox" data-layer="oz" checked /><span class="swatch swatch-oz"></span>Opportunity Zones</label></li>
       </ul>
     </div>
 
     <div id="empty-state" class="empty-state">
       <img src="assets/gwa-ellipsis.png" alt="" class="empty-icon-ellipsis" />
-      <h3>Search a River Edge property</h3>
-      <p>Enter an address or PIN above &mdash; or click any highlighted parcel on the map &mdash; to see how the River Edge Redevelopment Zone stacks with Opportunity Zone, historic district, and TIF incentives.</p>
+      <h3>Search an Elgin historic property</h3>
+      <p>Enter an address or PIN above &mdash; or click any highlighted parcel on the map &mdash; to see which incentives that property may qualify for.</p>
     </div>
 
     <!-- ============ PROPERTY SNAPSHOT PANEL ============ -->
@@ -115,11 +114,6 @@
           <span class="status-label">Historic District</span>
           <span class="status-value" id="status-hd-value">&mdash;</span>
         </div>
-        <div class="status-row" id="status-tif">
-          <span class="status-icon"></span>
-          <span class="status-label">TIF District</span>
-          <span class="status-value" id="status-tif-value">&mdash;</span>
-        </div>
       </div>
 
       <div class="snapshot-body">
@@ -136,12 +130,12 @@
           <ul id="snap-links" class="snap-links"></ul>
         </div>
 
-        <h3 class="snap-sectionhed">Nearby Properties in the Zone</h3>
+        <h3 class="snap-sectionhed">Nearby Properties</h3>
         <ul id="snap-nearby" class="snap-nearby"></ul>
 
         <img src="assets/gwa-ellipsis.png" alt="" class="snap-ellipsis" />
 
-        <p class="snap-footnote">Data: City of Elgin GIS (master address file, historic districts), Kane County GIS (parcels), Illinois DCEO / U.S. Treasury (River Edge Redevelopment Zone, Opportunity Zones). Prepared by Studio GWA for discussion purposes. Not legal, financial, or tax advice &mdash; verify zone status and incentive eligibility with the City of Elgin and your tax advisor.</p>
+        <p class="snap-footnote">Data: City of Elgin GIS (master address file, historic districts), Kane County GIS (parcels), Illinois DCEO (River Edge Redevelopment Zone), U.S. Treasury (Opportunity Zones). Prepared by Studio GWA for discussion purposes. Not legal, financial, or tax advice &mdash; verify zone status and incentive eligibility with the City of Elgin and your tax advisor.</p>
       </div>
     </div>
   </aside>
@@ -159,9 +153,8 @@
       <div id="mobile-layers-panel" class="mobile-layers-panel hidden">
         <ul class="legend-list">
           <li><label><input type="checkbox" data-layer="rerz" checked /><span class="swatch swatch-rerz"></span>River Edge Redevelopment Zone</label></li>
-          <li><label><input type="checkbox" data-layer="oz" /><span class="swatch swatch-oz"></span>Opportunity Zones</label></li>
-          <li><label><input type="checkbox" data-layer="hd" /><span class="swatch swatch-hd"></span>Historic Districts</label></li>
-          <li><label><input type="checkbox" data-layer="parcels" /><span class="swatch swatch-parcels"></span>Surrounding Parcels</label></li>
+          <li><label><input type="checkbox" data-layer="hd" checked /><span class="swatch swatch-hd"></span>Historic Districts</label></li>
+          <li><label><input type="checkbox" data-layer="oz" checked /><span class="swatch swatch-oz"></span>Opportunity Zones</label></li>
         </ul>
       </div>
     </div>
