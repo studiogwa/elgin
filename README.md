@@ -22,6 +22,12 @@ python3 -m http.server 8000
 
 Poppins and Lora from Google Fonts, standing in for the brand's Gilroy and Surveyor Text — same approach as the Rockford map, since the real typefaces are licensed for desktop use only. The real names are first in the font stacks, so a viewer with Gilroy installed locally sees it.
 
+## Street View
+
+The property panel embeds an interactive Street View pano, aimed at the building rather than down the street: the free Street View metadata endpoint gives the camera's coordinates, and the heading is the computed bearing from camera to parcel.
+
+Both services used — the Maps Embed API and the Street View metadata endpoint — are free and unrestricted. The billable Street View *Static* API is not used. `CONFIG.GOOGLE_MAPS_KEY` is blank by default, in which case the panel degrades to a no-key "Open in Google Maps" link. See DEPLOYMENT.md § 3b.
+
 ## Data
 
 All layers are reprojected to WGS84 (EPSG:4326) and simplified for web delivery. Built by `build_data.py` from the sources in `_source/`; re-run it to regenerate `data/` if the source data is refreshed.

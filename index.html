@@ -13,7 +13,7 @@
 <link href="https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.css" rel="stylesheet" />
 <script src="https://api.mapbox.com/mapbox-gl-js/v3.6.0/mapbox-gl.js"></script>
 
-<link rel="stylesheet" href="style.css?v=2026-09-17d" />
+<link rel="stylesheet" href="style.css?v=2026-09-17e" />
 <link rel="icon" href="assets/gwa-moniker-solid.png" />
 
 <!-- Google Analytics (GA4) — replace G-XXXXXXXXXX with the real Measurement ID before publishing.
@@ -126,7 +126,14 @@
         <h3 class="snap-sectionhed">Property Profile</h3>
         <dl class="snap-facts" id="snap-facts"></dl>
 
-        <div id="snap-links-wrap" class="snap-links-wrap hidden">
+          <div id="snap-streetview" class="snap-streetview hidden">
+          <h3 class="snap-sectionhed">Street View</h3>
+          <div id="snap-sv-frame" class="snap-sv-frame hidden"></div>
+          <p id="snap-sv-note" class="snap-sv-note hidden">No Street View imagery within reach of this parcel.</p>
+          <a id="snap-sv-link" class="snap-sv-link" href="#" target="_blank" rel="noopener">Open in Google Maps &#8599;</a>
+        </div>
+
+      <div id="snap-links-wrap" class="snap-links-wrap hidden">
           <h3 class="snap-sectionhed">Records</h3>
           <ul id="snap-links" class="snap-links"></ul>
         </div>
@@ -162,7 +169,7 @@
   </div>
 </main>
 
-<script src="config.js?v=2026-09-17d"></script>
-<script src="app.js?v=2026-09-17d"></script>
+<script src="config.js?v=2026-09-17e"></script>
+<script src="app.js?v=2026-09-17e"></script>
 </body>
 </html>

@@ -128,6 +128,49 @@ Pages redeploys in about a minute. Browser route: click into a file on GitHub, p
 
 ---
 
+## 3b. Street View panel — getting the Google key
+
+The property panel has a Street View section. **It already works with no key**: it shows an "Open in Google Maps ↗" link that opens the full pano, with Google's historical imagery slider. Adding a key upgrades that to an interactive panel embedded in the sidebar.
+
+**This costs nothing.** It uses exactly two services, both free:
+
+| Service | What it does here | Cost |
+|---|---|---|
+| Maps Embed API | renders the interactive panel | No charge, no rate limit — Google's words: "Maps Embed usage is available at no charge" |
+| Street View metadata | asks whether imagery exists near the parcel, and where the camera stands | Unlimited, no charge |
+
+The site deliberately does **not** use the Street View **Static** API, which bills $7.00 per 1,000 images past a 10,000/month free allowance. If you ever see Street View charges on a Google invoice, something has been changed to call that API — the code as written cannot.
+
+### Steps
+
+1. Go to [console.cloud.google.com](https://console.cloud.google.com) and sign in. If Studio GWA should own this rather than your personal account, sign in with the firm account first.
+2. Create a project — top bar project dropdown → **New Project** → name it something like `studiogwa-maps`.
+3. **APIs & Services → Library**, and enable these two:
+   - **Maps Embed API**
+   - **Street View Static API** (the free metadata endpoint lives under this one; enabling it does not by itself cost anything)
+4. **APIs & Services → Credentials → Create credentials → API key.** Copy the key.
+5. **Restrict the key immediately** — click it, then:
+   - **Application restrictions → Websites**, and add:
+     ```
+     https://studiogwa.github.io/*
+     ```
+     plus any custom domain later. This is what stops someone lifting the key off your page and using it elsewhere.
+   - **API restrictions → Restrict key**, and tick only Maps Embed API and Street View Static API.
+6. In `config.js`, paste it into `GOOGLE_MAPS_KEY: ""`.
+7. Bump the build string (below) and upload.
+
+Google may ask you to attach a billing account to the project even though these two services are free. That is Google's standard requirement for any API key, not a sign that you're being charged. If that makes you uneasy, leave the key blank — the link-out version needs no key, no project, and no billing, and still gets your client to the same imagery in one click.
+
+### When there's no imagery
+
+Some parcels — rear lots, private drives, alleys — have no Street View coverage within reach. The panel says so plainly rather than showing a grey box, and the link out stays available. The lookup asks for outdoor imagery within 80 m of the parcel.
+
+### Aiming the camera
+
+Street View's default view faces whichever way the camera car was pointing, which on a residential street usually means you're looking down the street rather than at the building. The site fixes this: it asks the free metadata endpoint where the camera actually stands, then computes the compass bearing from that camera to the parcel and passes it as the heading. You should be looking at the building, not past it.
+
+---
+
 ## 4. Later: Google Analytics (GA4)
 
 The snippet is already in `index.html` with a placeholder, so this is a find-and-replace.

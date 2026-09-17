@@ -35,6 +35,10 @@ const els = {
   snapLinksWrap: document.getElementById('snap-links-wrap'),
   snapLinks: document.getElementById('snap-links'),
   snapNearby: document.getElementById('snap-nearby'),
+  snapSv: document.getElementById('snap-streetview'),
+  snapSvFrame: document.getElementById('snap-sv-frame'),
+  snapSvNote: document.getElementById('snap-sv-note'),
+  snapSvLink: document.getElementById('snap-sv-link'),
   parcelCount: document.getElementById('parcel-count'),
 };
 
@@ -534,6 +538,97 @@ function deselectProperty() {
   window.history.replaceState({}, '', url);
 }
 
+
+// ---------------- Street View ----------------
+// Two Google services, both free:
+//   * the metadata endpoint says whether a panorama exists near this parcel
+//     and where its camera stands — unlimited, no charge;
+//   * the Maps Embed API renders the interactive panel — no charge, no rate
+//     limit.
+// The billed Street View *Static* API is deliberately not used.
+//
+// Knowing the camera position is what makes this worth the extra request:
+// Google's default view faces whichever way the car was pointing, which on a
+// residential street is usually the street, not the building. With the camera
+// coordinates we aim the heading straight at the parcel.
+
+function bearing(from, to) {
+  // initial great-circle bearing, degrees clockwise from north
+  const toRad = (d) => (d * Math.PI) / 180;
+  const toDeg = (r) => (r * 180) / Math.PI;
+  const [lon1, lat1] = from;
+  const [lon2, lat2] = to;
+  const dLon = toRad(lon2 - lon1);
+  const y = Math.sin(dLon) * Math.cos(toRad(lat2));
+  const x = Math.cos(toRad(lat1)) * Math.sin(toRad(lat2)) -
+            Math.sin(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.cos(dLon);
+  return (toDeg(Math.atan2(y, x)) + 360) % 360;
+}
+
+// Each render gets a token; a slow response for a property the viewer has
+// already clicked away from is discarded rather than landing in the panel.
+let svToken = 0;
+
+async function renderStreetView(feature) {
+  const token = ++svToken;
+  const wrap = els.snapSv;
+  if (!wrap) return;
+
+  const centroid = centroidById[feature.properties.id];
+  if (!centroid) {
+    wrap.classList.add('hidden');
+    return;
+  }
+  const target = centroid.geometry.coordinates;   // [lon, lat]
+  const [lon, lat] = target;
+
+  wrap.classList.remove('hidden');
+  els.snapSvFrame.classList.add('hidden');
+  els.snapSvFrame.innerHTML = '';
+  els.snapSvNote.classList.add('hidden');
+
+  // The link out needs no API key and always works. It also gives the viewer
+  // Google's historical imagery slider, which the embed does not expose.
+  els.snapSvLink.href =
+    `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${lat},${lon}`;
+
+  const key = CONFIG.GOOGLE_MAPS_KEY;
+  if (!key) return;   // link-only until a key is configured
+
+  try {
+    const meta = await fetch(
+      `https://maps.googleapis.com/maps/api/streetview/metadata?location=${lat},${lon}&radius=80&source=outdoor&key=${key}`
+    ).then((r) => r.json());
+
+    if (token !== svToken) return;   // viewer moved on
+
+    if (meta.status !== 'OK') {
+      els.snapSvNote.classList.remove('hidden');
+      return;
+    }
+
+    const cam = [meta.location.lng, meta.location.lat];
+    const heading = Math.round(bearing(cam, target));
+
+    const iframe = document.createElement('iframe');
+    iframe.loading = 'lazy';
+    iframe.allowFullscreen = true;
+    iframe.referrerPolicy = 'strict-origin-when-cross-origin';
+    iframe.title = `Street View of ${feature.properties.address}`;
+    iframe.src = `https://www.google.com/maps/embed/v1/streetview` +
+      `?key=${encodeURIComponent(key)}` +
+      `&pano=${encodeURIComponent(meta.pano_id)}` +
+      `&heading=${heading}&pitch=8&fov=80`;
+    els.snapSvFrame.innerHTML = '';
+    els.snapSvFrame.appendChild(iframe);
+    els.snapSvFrame.classList.remove('hidden');
+  } catch (err) {
+    // Network failure, a rejected key, or a referrer restriction that does
+    // not cover this domain. The link out still works, so fail quietly.
+    if (token === svToken) els.snapSvNote.classList.remove('hidden');
+  }
+}
+
 // ---------------- Snapshot rendering ----------------
 function statusRow(rowId, isYes, valueText) {
   const row = document.getElementById(rowId);
@@ -628,6 +723,7 @@ function renderSnapshot(feature) {
   }
 
   renderNearby(feature);
+  renderStreetView(feature);
 }
 
 function renderNearby(feature) {
